@@ -4,19 +4,38 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+// Format date to "YYYY-MM-DDTHH:MM" for datetime-local input
+const formatDateTimeLocal = (date) => {
+  const pad = (n) => String(n).padStart(2, '0');
+  return (
+    date.getFullYear() +
+    '-' +
+    pad(date.getMonth() + 1) +
+    '-' +
+    pad(date.getDate()) +
+    'T' +
+    pad(date.getHours()) +
+    ':' +
+    pad(date.getMinutes())
+  );
+};
+
 const CreateProject = () => {
+  const now = new Date();
+  const inOneHour = new Date(now.getTime() + 60 * 60 * 1000);
+
   const [formData, setFormData] = useState({
     name: '',
     status: 'Pending',
-    startDate: '',
-    endDate: ''
+    startDate: formatDateTimeLocal(now),
+    endDate: formatDateTimeLocal(inOneHour),
   });
 
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -24,21 +43,29 @@ const CreateProject = () => {
     try {
       const token = localStorage.getItem('token');
 
+      // Reconstruct datetime with seconds from now
+      const nowSeconds = new Date().getSeconds();
+      const withSeconds = (dt) => {
+        const date = new Date(dt);
+        date.setSeconds(nowSeconds); // Apply seconds
+        return date.toISOString();
+      };
+
       const cleanedData = {
         ...formData,
-        startDate: formData.startDate || null,
-        endDate: formData.endDate || null
+        startDate: withSeconds(formData.startDate),
+        endDate: withSeconds(formData.endDate),
       };
 
       await axios.post('http://localhost:5000/api/projects', cleanedData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       alert('✅ Project created successfully');
-      navigate('/edit-projects');
+      navigate('/dashboard');
     } catch (err) {
       console.error('❌ Error creating project:', err);
       alert('Failed to create project. Please check the data and try again.');
@@ -79,26 +106,28 @@ const CreateProject = () => {
         </div>
 
         <div className="mb-3">
-          <label htmlFor="startDate" className="form-label">Start Date</label>
+          <label htmlFor="startDate" className="form-label">Start Date & Time</label>
           <input
-            type="date"
+            type="datetime-local"
             className="form-control"
             id="startDate"
             name="startDate"
             value={formData.startDate}
             onChange={handleChange}
+            required
           />
         </div>
 
         <div className="mb-3">
-          <label htmlFor="endDate" className="form-label">End Date</label>
+          <label htmlFor="endDate" className="form-label">End Date & Time</label>
           <input
-            type="date"
+            type="datetime-local"
             className="form-control"
             id="endDate"
             name="endDate"
             value={formData.endDate}
             onChange={handleChange}
+            required
           />
         </div>
 

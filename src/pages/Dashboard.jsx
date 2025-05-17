@@ -153,6 +153,7 @@ const Dashboard = () => {
                         <tr>
                           <td colSpan="6" className="text-center">No projects found.</td>
                         </tr>
+                        
                       )}
                     </tbody>
                   </table>

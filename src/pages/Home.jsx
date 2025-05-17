@@ -1,27 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import logo from '../assets/logo-jseven.png';
+
+
+const formatTwoDigits = (num) => String(num).padStart(2, '0');
 
 const calculateCountdown = (endDate) => {
   const end = new Date(endDate).getTime();
   const now = new Date().getTime();
   const distance = end - now;
 
-  if (distance <= 0) return { months: 0, days: 0, minutes: 0, seconds: 0 };
+  if (distance <= 0) return null;
 
   const months = Math.floor(distance / (1000 * 60 * 60 * 24 * 30));
   const days = Math.floor((distance % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-  return { months, days, minutes, seconds };
+  return { months, days, hours, minutes, seconds };
 };
 
 const Home = () => {
   const [projects, setProjects] = useState([]);
   const [countdowns, setCountdowns] = useState({});
   const [currentPage, setCurrentPage] = useState(0);
-  const projectsPerPage = 6;
+  const projectsPerPage = 12;
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -32,16 +37,20 @@ const Home = () => {
         console.error('❌ Failed to fetch projects:', err);
       }
     };
-
     fetchProjects();
   }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
       const updated = {};
+
       projects.forEach((p) => {
-        updated[p._id] = calculateCountdown(p.endDate);
+        const cd = calculateCountdown(p.endDate);
+        if (cd) {
+          updated[p._id] = cd;
+        }
       });
+
       setCountdowns(updated);
     }, 1000);
 
@@ -50,11 +59,10 @@ const Home = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentPage((prevPage) =>
-        prevPage + 1 < Math.ceil(projects.length / projectsPerPage) ? prevPage + 1 : 0
+      setCurrentPage((prev) =>
+        prev + 1 < Math.ceil(projects.length / projectsPerPage) ? prev + 1 : 0
       );
-    }, 30000); // Change page every 30 seconds
-
+    }, 30000);
     return () => clearInterval(interval);
   }, [projects.length]);
 
@@ -63,53 +71,97 @@ const Home = () => {
     (currentPage + 1) * projectsPerPage
   );
 
+  const today = new Date().toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  });
+
   return (
-    <div>
-      <header className="bg-dark text-white p-3 d-flex justify-content-between align-items-center shadow">
-        <h1 className="h4 m-0">J SEVEN PROJECTS</h1>
-        <button
-          className="btn btn-outline-light"
-          onClick={() => (window.location.href = '/login')}
-        >
-          Login
-        </button>
-      </header>
+    <div
+      style={{
+        backgroundColor: '#001f3f',
+        color: 'white',
+        fontFamily: 'Arial, sans-serif',
+        height: '100vh',
+        width: '100vw',
+        padding: '10px',
+        overflow: 'hidden',
+      }}
+    >
+   <div className="text-center m-3 d-flex justify-content-center align-items-center gap-3">
+ <img
+  src={logo}
+  alt="J-Seven Logo"
+  style={{ height: '50px', marginRight: '10px' }}
+/>
+  <h1 style={{ fontSize: '2.2rem', color: 'white', marginBottom: '0' }}>J-Seven Projects</h1>
+</div>
 
-      <div className="container mt-4">
-        <div className="row">
-          {displayedProjects.map((project) => {
-            const cd = countdowns[project._id] || {};
-            return (
-              <div className="col-md-6 col-lg-4 mb-4" key={project._id}>
-                <div className="card h-100 shadow border-0 rounded-4">
-                  <div className="card-body text-center">
-                    <h5 className="card-title text-primary fw-bold">{project.name}</h5>
-                    <p className="text-muted small">
-                      <strong>Start:</strong>{' '}
-                      {new Date(project.startDate).toLocaleDateString()}
-                      <br />
-                      <strong>End:</strong>{' '}
-                      {new Date(project.endDate).toLocaleDateString()}
-                    </p>
-                    <div className="bg-light p-4 border rounded-4 shadow-sm">
-                      <h5 className="fw-bold text-uppercase text-danger mb-3">Countdown</h5>
-                      <div className="d-flex justify-content-center gap-3 fs-2 fw-bold">
-                        <span className="badge bg-danger px-3 py-2">{cd.months}M</span>
-                        <span className="badge bg-warning text-dark px-3 py-2">{cd.days}D</span>
-                        <span className="badge bg-success px-3 py-2">{cd.minutes}m</span>
-                        <span className="badge bg-primary px-3 py-2">{cd.seconds}s</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+
+      <h2 className="text-center text-info mb-5" style={{ fontSize: '1.4rem', marginBottom: '10px' }}>
+        {today}
+      </h2>
+
+      {/* Column Headers */}
+      <div
+        className="d-flex justify-content-between align-items-center px-3"
+        style={{
+          fontSize: '1rem',
+          fontWeight: 'bold',
+          color: '#7FDBFF',
+          borderBottom: '2px solid #7FDBFF',
+          paddingBottom: '4px',
+          marginBottom: '8px',
+        }}
+      >
+        <div style={{ width: '30%' }}>Project</div>
+        <div className="d-flex justify-content-between" style={{ width: '65%' }}>
+          <span>Month</span>
+          <span>Day</span>
+          <span>Hr</span>
+          <span>Min</span>
+          <span>Sec</span>
         </div>
+      </div>
 
-        {projects.length === 0 && (
-          <div className="text-center text-muted mt-5">No projects found.</div>
-        )}
+      {/* Project List */}
+      <div className="px-3" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {displayedProjects.map((project) => {
+          const cd = countdowns[project._id];
+
+          return (
+            <div
+              key={project._id}
+              className="d-flex justify-content-between align-items-center"
+              style={{
+                backgroundColor: cd ? '#ffffff' : '#ffe6e6',
+                color: cd ? '#001f3f' : '#990000',
+                borderRadius: '10px',
+                padding: '10px 15px',
+                fontSize: '1.4rem',
+                minHeight: '60px',
+              }}
+            >
+              <div style={{ width: '30%', fontWeight: 'bold', color: cd ? '#0074D9' : '#990000' }}>
+                {project.name}
+              </div>
+              <div className="d-flex justify-content-between" style={{ width: '65%' }}>
+                {cd ? (
+                  <>
+                    <span>{formatTwoDigits(cd.months)}</span>
+                    <span>{formatTwoDigits(cd.days)}</span>
+                    <span>{formatTwoDigits(cd.hours)}</span>
+                    <span>{formatTwoDigits(cd.minutes)}</span>
+                    <span>{formatTwoDigits(cd.seconds)}</span>
+                  </>
+                ) : (
+                  <span className="text-danger">Expired</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

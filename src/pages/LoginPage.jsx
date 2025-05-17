@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Container, Form, Button, Card } from 'react-bootstrap';
-import logo from '../assets/logo.png'; // Ensure logo path is correct
+import logo from '../assets/logo-jseven.png'; // Ensure logo path is correct
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
