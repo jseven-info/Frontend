@@ -12,7 +12,7 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', {
+      const res = await axios.post('https://backend-9nfg.onrender.com/api/auth/login', {
         email,
         password,
       }, { withCredentials: true });

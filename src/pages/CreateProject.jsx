@@ -57,7 +57,7 @@ const CreateProject = () => {
         endDate: withSeconds(formData.endDate),
       };
 
-      await axios.post('http://localhost:5000/api/projects', cleanedData, {
+      await axios.post('https://backend-9nfg.onrender.com/api/projects', cleanedData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',

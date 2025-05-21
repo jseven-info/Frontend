@@ -9,7 +9,7 @@ const Dashboard = () => {
   const fetchProjects = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5000/api/projects', {
+      const res = await axios.get('https://backend-9nfg.onrender.com/api/projects', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -27,7 +27,7 @@ const Dashboard = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/projects/${id}`, {
+      await axios.delete(`https://backend-9nfg.onrender.com/api/projects/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

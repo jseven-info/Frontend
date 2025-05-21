@@ -19,7 +19,7 @@ const CreateAdmin = () => {
     setSuccess('');
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/auth/register', form, {
+      await axios.post('https://backend-9nfg.onrender.com/api/auth/register', form, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
