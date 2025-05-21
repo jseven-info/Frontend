@@ -3,7 +3,6 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from '../assets/logo-jseven.png';
 
-
 const formatTwoDigits = (num) => String(num).padStart(2, '0');
 
 const calculateCountdown = (endDate) => {
@@ -20,6 +19,61 @@ const calculateCountdown = (endDate) => {
   const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
   return { months, days, hours, minutes, seconds };
+};
+
+const Digit = ({ value }) => {
+  return (
+    <div
+      className="flip-digit"
+      style={{
+        backgroundColor: '#007BFF',
+        color: 'white',
+        padding: '5px 8px',
+        borderRadius: '4px',
+        fontSize: '1.2rem',
+        margin: '0 2px',
+        minWidth: '24px',
+        textAlign: 'center'
+      }}
+    >
+      {value}
+    </div>
+  );
+};
+
+const DigitFlip = ({ value }) => {
+  const [prevDigits, setPrevDigits] = useState(() => formatTwoDigits(value).split(''));
+  const [flipFlags, setFlipFlags] = useState([false, false]);
+
+  useEffect(() => {
+    const newDigits = formatTwoDigits(value).split('');
+    const newFlags = [false, false];
+
+    newDigits.forEach((digit, i) => {
+      if (digit !== prevDigits[i]) newFlags[i] = true;
+    });
+
+    setFlipFlags(newFlags);
+    const timeout = setTimeout(() => {
+      setPrevDigits(newDigits);
+      setFlipFlags([false, false]);
+    }, 600);
+
+    return () => clearTimeout(timeout);
+  }, [value]);
+
+  return (
+    <div style={{ display: 'flex' }}>
+      {prevDigits.map((digit, i) => (
+        <div className={`flip ${flipFlags[i] ? 'flip-animate' : ''}`} key={i}>
+          <div className="flip-inner">
+            <div className="flip-front">{digit}</div>
+            <div className="flip-back">{formatTwoDigits(value)[i]}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 };
 
 const Home = () => {
@@ -89,43 +143,40 @@ const Home = () => {
         overflow: 'hidden',
       }}
     >
-   <div className="text-center m-3 d-flex justify-content-center align-items-center gap-3">
- <img
-  src={logo}
-  alt="J-Seven Logo"
-  style={{ height: '50px', marginRight: '10px' }}
-/>
-  <h1 style={{ fontSize: '2.2rem', color: 'white', marginBottom: '0' }}>J-Seven Projects</h1>
-</div>
+      <div className="text-center m-3 d-flex justify-content-center align-items-center gap-3">
+        <img
+          src={logo}
+          alt="J-Seven Logo"
+          style={{ height: '100px', marginRight: '10px' }}
+        />
+      </div>
 
-
-      <h2 className="text-center text-info mb-5" style={{ fontSize: '1.4rem', marginBottom: '10px' }}>
+      <h2 className="text-center text-info mb-5" style={{ fontSize: '1.4rem' }}>
         {today}
       </h2>
 
-      {/* Column Headers */}
-      <div
-        className="d-flex justify-content-between align-items-center px-3"
-        style={{
-          fontSize: '1rem',
-          fontWeight: 'bold',
-          color: '#7FDBFF',
-          borderBottom: '2px solid #7FDBFF',
-          paddingBottom: '4px',
-          marginBottom: '8px',
-        }}
-      >
-        <div style={{ width: '30%' }}>Project</div>
-        <div className="d-flex justify-content-between" style={{ width: '65%' }}>
-          <span>Month</span>
-          <span>Day</span>
-          <span>Hr</span>
-          <span>Min</span>
-          <span>Sec</span>
-        </div>
-      </div>
+    <div
+  className="d-flex justify-content-between align-items-center px-3"
+  style={{
+    fontSize: '1rem',
+    fontWeight: 'bold',
+    color: '#7FDBFF',
+    borderBottom: '2px solid #7FDBFF',
+    paddingBottom: '4px',
+    marginBottom: '8px',
+  }}
+>
+  <div style={{ width: '30%' }}>Project</div>
+  <div className="d-flex justify-content-between" style={{ width: '65%' }}>
+    <span style={{ marginLeft: '8px' }}>Month</span>
+    <span>Day</span>
+    <span>Hour</span>
+    <span>Minute</span>
+    <span style={{ marginRight: '8px' }}>Second</span>
+  </div>
+</div>
 
-      {/* Project List */}
+
       <div className="px-3" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {displayedProjects.map((project) => {
           const cd = countdowns[project._id];
@@ -149,11 +200,11 @@ const Home = () => {
               <div className="d-flex justify-content-between" style={{ width: '65%' }}>
                 {cd ? (
                   <>
-                    <span>{formatTwoDigits(cd.months)}</span>
-                    <span>{formatTwoDigits(cd.days)}</span>
-                    <span>{formatTwoDigits(cd.hours)}</span>
-                    <span>{formatTwoDigits(cd.minutes)}</span>
-                    <span>{formatTwoDigits(cd.seconds)}</span>
+                    <DigitFlip value={cd.months} />
+                    <DigitFlip value={cd.days} />
+                    <DigitFlip value={cd.hours} />
+                    <DigitFlip value={cd.minutes} />
+                    <DigitFlip value={cd.seconds} />
                   </>
                 ) : (
                   <span className="text-danger">Expired</span>
@@ -163,6 +214,64 @@ const Home = () => {
           );
         })}
       </div>
+
+    <style>{`
+  .flip {
+    position: relative;
+    width: 30px;
+    height: 40px;
+    perspective: 800px;
+    margin: 0 3px;
+  }
+
+  .flip-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+  }
+
+  .flip.flip-animate .flip-inner {
+    animation: flipDown 0.6s ease-in-out forwards;
+  }
+
+  @keyframes flipDown {
+    0% {
+      transform: rotateX(0deg);
+    }
+    50% {
+      transform: rotateX(-90deg);
+    }
+    100% {
+      transform: rotateX(-180deg);
+    }
+  }
+
+  .flip-front, .flip-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    line-height: 40px;
+    backface-visibility: hidden;
+    background-color: #007BFF;
+    color: white;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+
+  .flip-front {
+    transform: rotateX(0deg);
+    z-index: 2;
+  }
+
+  .flip-back {
+    transform: rotateX(180deg);
+  }
+`}</style>
+
     </div>
   );
 };
