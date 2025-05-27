@@ -21,26 +21,6 @@ const calculateCountdown = (endDate) => {
   return { months, days, hours, minutes, seconds };
 };
 
-const Digit = ({ value }) => {
-  return (
-    <div
-      className="flip-digit"
-      style={{
-        backgroundColor: '#007BFF',
-        color: 'white',
-        padding: '5px 8px',
-        borderRadius: '4px',
-        fontSize: '1.2rem',
-        margin: '0 2px',
-        minWidth: '24px',
-        textAlign: 'center'
-      }}
-    >
-      {value}
-    </div>
-  );
-};
-
 const DigitFlip = ({ value }) => {
   const [prevDigits, setPrevDigits] = useState(() => formatTwoDigits(value).split(''));
   const [flipFlags, setFlipFlags] = useState([false, false]);
@@ -80,7 +60,7 @@ const Home = () => {
   const [projects, setProjects] = useState([]);
   const [countdowns, setCountdowns] = useState({});
   const [currentPage, setCurrentPage] = useState(0);
-  const projectsPerPage = 12;
+  const projectsPerPage = Math.floor(window.innerHeight / 90); // Responsive per screen height
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -97,28 +77,21 @@ const Home = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       const updated = {};
-
       projects.forEach((p) => {
         const cd = calculateCountdown(p.endDate);
-        if (cd) {
-          updated[p._id] = cd;
-        }
+        if (cd) updated[p._id] = cd;
       });
-
       setCountdowns(updated);
     }, 1000);
-
     return () => clearInterval(interval);
   }, [projects]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentPage((prev) =>
-        prev + 1 < Math.ceil(projects.length / projectsPerPage) ? prev + 1 : 0
-      );
+      setCurrentPage((prev) => (prev + 1 < Math.ceil(projects.length / projectsPerPage) ? prev + 1 : 0));
     }, 30000);
     return () => clearInterval(interval);
-  }, [projects.length]);
+  }, [projects.length, projectsPerPage]);
 
   const displayedProjects = projects.slice(
     currentPage * projectsPerPage,
@@ -132,71 +105,30 @@ const Home = () => {
   });
 
   return (
-    <div
-      style={{
-        backgroundColor: '#001f3f',
-        color: 'white',
-        fontFamily: 'Arial, sans-serif',
-        height: '100vh',
-        width: '100vw',
-        padding: '10px',
-        overflow: 'hidden',
-      }}
-    >
+    <div style={{ backgroundColor: '#001f3f', color: 'white', fontFamily: 'Arial, sans-serif', height: '100vh', width: '100vw', padding: '10px', overflow: 'hidden' }}>
       <div className="text-center m-3 d-flex justify-content-center align-items-center gap-3">
-        <img
-          src={logo}
-          alt="J-Seven Logo"
-          style={{ height: '100px', marginRight: '10px' }}
-        />
+        <img src={logo} alt="J-Seven Logo" style={{ height: '100px', marginRight: '10px' }} />
       </div>
 
-      <h2 className="text-center text-info mb-5" style={{ fontSize: '1.4rem' }}>
-        {today}
-      </h2>
+      <h2 className="text-center text-info mb-5" style={{ fontSize: '2rem' }}>{today}</h2>
 
-    <div
-  className="d-flex justify-content-between align-items-center px-3"
-  style={{
-    fontSize: '1rem',
-    fontWeight: 'bold',
-    color: '#7FDBFF',
-    borderBottom: '2px solid #7FDBFF',
-    paddingBottom: '4px',
-    marginBottom: '8px',
-  }}
->
-  <div style={{ width: '30%' }}>Project</div>
-  <div className="d-flex justify-content-between" style={{ width: '65%' }}>
-    <span style={{ marginLeft: '8px' }}>Month</span>
-    <span>Day</span>
-    <span>Hour</span>
-    <span>Minute</span>
-    <span style={{ marginRight: '8px' }}>Second</span>
-  </div>
-</div>
-
+      <div className="d-flex justify-content-between align-items-center px-3" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#7FDBFF', borderBottom: '2px solid #7FDBFF', paddingBottom: '4px', marginBottom: '8px' }}>
+        <div style={{ width: '30%' }}>Project</div>
+        <div className="d-flex justify-content-between" style={{ width: '65%' }}>
+          <span style={{ marginLeft: '8px' }}>Months</span>
+          <span>Days</span>
+          <span>Hours</span>
+          <span>Minutes</span>
+          <span style={{ marginRight: '8px' }}>Seconds</span>
+        </div>
+      </div>
 
       <div className="px-3" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {displayedProjects.map((project) => {
           const cd = countdowns[project._id];
-
           return (
-            <div
-              key={project._id}
-              className="d-flex justify-content-between align-items-center"
-              style={{
-                backgroundColor: cd ? '#ffffff' : '#ffe6e6',
-                color: cd ? '#001f3f' : '#990000',
-                borderRadius: '10px',
-                padding: '10px 15px',
-                fontSize: '1.4rem',
-                minHeight: '60px',
-              }}
-            >
-              <div style={{ width: '30%', fontWeight: 'bold', color: cd ? '#0074D9' : '#990000' }}>
-                {project.name}
-              </div>
+            <div key={project._id} className="d-flex justify-content-between align-items-center" style={{ backgroundColor: cd ? '#ffffff' : '#ffe6e6', color: cd ? '#001f3f' : '#990000', borderRadius: '10px', padding: '10px 15px', fontSize: '2rem', minHeight: '90px' }}>
+              <div style={{ width: '30%', fontWeight: 'bold', color: cd ? '#0074D9' : '#990000' }}>{project.name}</div>
               <div className="d-flex justify-content-between" style={{ width: '65%' }}>
                 {cd ? (
                   <>
@@ -207,7 +139,7 @@ const Home = () => {
                     <DigitFlip value={cd.seconds} />
                   </>
                 ) : (
-                  <span className="text-danger">Expired</span>
+                  <span className="text-danger">Completed</span>
                 )}
               </div>
             </div>
@@ -215,63 +147,50 @@ const Home = () => {
         })}
       </div>
 
-    <style>{`
-  .flip {
-    position: relative;
-    width: 30px;
-    height: 40px;
-    perspective: 800px;
-    margin: 0 3px;
-  }
+      <style>{`
+        .flip {
+          position: relative;
+          width: 36px;
+          height: 48px;
+          perspective: 800px;
+          margin: 0 3px;
+        }
 
-  .flip-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    transform-style: preserve-3d;
-  }
+        .flip-inner {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          transform-style: preserve-3d;
+        }
 
-  .flip.flip-animate .flip-inner {
-    animation: flipDown 0.6s ease-in-out forwards;
-  }
+        .flip.flip-animate .flip-inner {
+          animation: flipDown 0.6s ease-in-out forwards;
+        }
 
-  @keyframes flipDown {
-    0% {
-      transform: rotateX(0deg);
-    }
-    50% {
-      transform: rotateX(-90deg);
-    }
-    100% {
-      transform: rotateX(-180deg);
-    }
-  }
+        @keyframes flipDown {
+          0% { transform: rotateX(0deg); }
+          50% { transform: rotateX(-90deg); }
+          100% { transform: rotateX(-180deg); }
+        }
 
-  .flip-front, .flip-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    line-height: 40px;
-    backface-visibility: hidden;
-    background-color: #007BFF;
-    color: white;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 1.2rem;
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  }
+        .flip-front, .flip-back {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          line-height: 48px;
+          backface-visibility: hidden;
+          background-color: #007BFF;
+          color: white;
+          border-radius: 6px;
+          font-weight: bold;
+          font-size: 1.5rem;
+          text-align: center;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
 
-  .flip-front {
-    transform: rotateX(0deg);
-    z-index: 2;
-  }
-
-  .flip-back {
-    transform: rotateX(180deg);
-  }
-`}</style>
-
+        .flip-front { transform: rotateX(0deg); z-index: 2; }
+        .flip-back { transform: rotateX(180deg); }
+      `}</style>
     </div>
   );
 };

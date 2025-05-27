@@ -29,7 +29,7 @@ const LoginPage = () => {
 
       // Redirect all admins
       if (user.role === 'admin') {
-        navigate('/Dashboard');
+        navigate('/');
       } else {
         alert('Access denied. Only admin users are allowed.');
       }
@@ -42,10 +42,11 @@ const LoginPage = () => {
 
   return (
     <Container className="d-flex vh-100 justify-content-center align-items-center bg-light">
-      <Card className="p-4 shadow-lg w-100" style={{ maxWidth: '400px' }}>
+    <Card className="p-4 shadow-lg w-100 text-white" style={{ maxWidth: '400px', backgroundColor: 'rgb(0, 31, 63)' }}>
+
         <div className="text-center mb-3">
-          <img src={logo} alt="Company Logo" width="100" className="mb-2" />
-          <h4 className="text-primary">Company Portal Login</h4>
+          <img src={logo} alt="Company Logo" width="200" className="mb-2" />
+          <h4 className="t"> Portal Login</h4>
         </div>
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3">
@@ -70,7 +71,11 @@ const LoginPage = () => {
             />
           </Form.Group>
 
-          <Button variant="primary" type="submit" className="w-100">
+          <Button
+            type="submit"
+            className="w-100"
+            style={{ backgroundColor: '#6c757d', borderColor: '#6c757d' }}
+          >
             Login
           </Button>
         </Form>
