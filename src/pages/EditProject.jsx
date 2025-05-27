@@ -24,7 +24,7 @@ const EditProject = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
-    status: 'Pending',
+    status: 'To Be Announced',
     startDate: '',
     endDate: '',
   });
@@ -45,7 +45,7 @@ const EditProject = () => {
         const project = res.data;
         setFormData({
           name: project.name || '',
-          status: project.status || 'Pending',
+          status: project.status || 'To Be Announced',
           startDate: project.startDate ? formatDateTimeLocal(new Date(project.startDate)) : '',
           endDate: project.endDate ? formatDateTimeLocal(new Date(project.endDate)) : '',
         });
@@ -130,7 +130,7 @@ const EditProject = () => {
             onChange={handleChange}
             required
           >
-            <option value="Pending">Pending</option>
+            <option value="To Be Announced">To Be Announced</option>
             <option value="In Progress">In Progress</option>
             <option value="Completed">Completed</option>
             <option value="On Hold">On Hold</option>

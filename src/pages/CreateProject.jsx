@@ -24,7 +24,7 @@ const CreateProject = () => {
 
   const [formData, setFormData] = useState({
     name: '',
-    status: 'Pending',
+    status: 'To Be Announced',
     startDate: formatDateTimeLocal(now),
     endDate: formatDateTimeLocal(inOneHour),
   });
@@ -103,7 +103,7 @@ const CreateProject = () => {
             onChange={handleChange}
             required
           >
-            <option value="Pending">Pending</option>
+            <option value="To Be Announced">To Be Announced</option>
             <option value="In Progress">In Progress</option>
             <option value="Completed">Completed</option>
             <option value="On Hold">On Hold</option>
