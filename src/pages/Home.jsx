@@ -127,10 +127,21 @@ const Home = () => {
         {displayedProjects.map((project) => {
           const cd = countdowns[project._id];
           return (
-            <div key={project._id} className="d-flex justify-content-between align-items-center" style={{ backgroundColor: cd ? '#ffffff' : '#ffe6e6', color: cd ? '#001f3f' : '#990000', borderRadius: '10px', padding: '10px 15px', fontSize: '2rem', minHeight: '90px' }}>
+            <div key={project._id} className="d-flex justify-content-between align-items-center" style={{
+              backgroundColor: cd ? '#ffffff' : '#ffe6e6',
+              color: cd ? '#001f3f' : '#990000',
+              borderRadius: '10px',
+              padding: '10px 15px',
+              fontSize: '2rem',
+              minHeight: '90px'
+            }}>
               <div style={{ width: '30%', fontWeight: 'bold', color: cd ? '#0074D9' : '#990000' }}>{project.name}</div>
-              <div className="d-flex justify-content-between" style={{ width: '65%' }}>
-                {cd ? (
+              <div className="d-flex justify-content-between align-items-center" style={{ width: '65%' }}>
+                {project.status === 'Completed' ? (
+                  <span className="text-danger">Completed</span>
+                ) : project.status === 'On Hold' || project.status === 'To Be Announced' ? (
+                  <span style={{ color: 'rgb(0, 31, 63)', fontWeight: 'bold' }}>{project.status}</span>
+                ) : cd ? (
                   <>
                     <DigitFlip value={cd.months} />
                     <DigitFlip value={cd.days} />

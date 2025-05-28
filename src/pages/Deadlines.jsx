@@ -10,13 +10,11 @@ const Deadlines = () => {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.get('https://backend-9nfg.onrender.com/api/projects', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-      setProjects(res.data);
+      setProjects(res.data || []);
     } catch (err) {
-      console.error('Failed to fetch projects', err);
+      console.error('❌ Failed to fetch projects:', err);
     } finally {
       setLoading(false);
     }
@@ -26,8 +24,24 @@ const Deadlines = () => {
     fetchProjects();
   }, []);
 
+  const badgeClass = (status) => {
+    switch ((status || '').toLowerCase()) {
+      case 'completed':
+        return 'success';
+      case 'in progress':
+        return 'warning text-dark';
+      case 'on hold':
+        return 'danger';
+      case 'to be announced':
+      case 'tba':
+        return 'info';
+      default:
+        return 'secondary';
+    }
+  };
+
   const upcoming = projects
-    .filter(p => p.endDate && new Date(p.endDate) > new Date())
+    .filter((p) => p.endDate && new Date(p.endDate) > new Date())
     .sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
 
   return (
@@ -39,7 +53,7 @@ const Deadlines = () => {
         <p>No upcoming deadlines found.</p>
       ) : (
         <div className="table-responsive">
-          <table className="table table-striped table-bordered">
+          <table className="table table-striped table-bordered align-middle">
             <thead className="table-dark">
               <tr>
                 <th>#</th>
@@ -49,16 +63,16 @@ const Deadlines = () => {
               </tr>
             </thead>
             <tbody>
-              {upcoming.map((p, index) => (
-                <tr key={p._id}>
+              {upcoming.map((project, index) => (
+                <tr key={project._id}>
                   <td>{index + 1}</td>
-                  <td>{p.name}</td>
+                  <td>{project.name || 'Unnamed Project'}</td>
                   <td>
-                    <span className={`badge bg-${p.status === 'Completed' ? 'success' : p.status === 'In Progress' ? 'warning text-dark' : 'secondary'}`}>
-                      {p.status}
+                    <span className={`badge bg-${badgeClass(project.status)}`}>
+                      {project.status || 'Unknown'}
                     </span>
                   </td>
-                  <td>{new Date(p.endDate).toLocaleDateString()}</td>
+                  <td>{new Date(project.endDate).toLocaleDateString()}</td>
                 </tr>
               ))}
             </tbody>
@@ -70,4 +84,3 @@ const Deadlines = () => {
 };
 
 export default Deadlines;
-

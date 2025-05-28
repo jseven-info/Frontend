@@ -71,13 +71,34 @@ const LoginPage = () => {
             />
           </Form.Group>
 
-          <Button
-            type="submit"
-            className="w-100"
-            style={{ backgroundColor: '#6c757d', borderColor: '#6c757d' }}
-          >
-            Login
-          </Button>
+        <Button
+  type="submit"
+  className="w-100 custom-login-btn"
+>
+  Login
+</Button>
+
+<style>
+{`
+  .custom-login-btn {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .custom-login-btn:hover {
+    background-color: #5a6268; /* Slightly darker gray */
+    transform: scale(1.02);
+  }
+
+  .custom-login-btn:active {
+    background-color: #545b62;
+    transform: scale(0.98);
+  }
+`}
+</style>
+
         </Form>
       </Card>
     </Container>
