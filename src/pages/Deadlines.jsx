@@ -24,7 +24,7 @@ const Deadlines = () => {
     fetchProjects();
   }, []);
 
-  // Helper for badge colors
+  // Helper to get badge class
   const badgeClass = (status) => {
     switch ((status || '').toLowerCase()) {
       case 'completed':
@@ -41,7 +41,13 @@ const Deadlines = () => {
     }
   };
 
-  // All projects with valid endDate, sorted by endDate (both future and past)
+  const getComputedStatus = (project) => {
+    if (project.endDate && new Date(project.endDate) < new Date()) {
+      return 'Completed';
+    }
+    return project.status || 'Unknown';
+  };
+
   const withDeadline = projects
     .filter((p) => p.endDate)
     .sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
@@ -66,18 +72,21 @@ const Deadlines = () => {
               </tr>
             </thead>
             <tbody>
-              {withDeadline.map((project, index) => (
-                <tr key={project._id}>
-                  <td>{index + 1}</td>
-                  <td>{project.name || 'Unnamed Project'}</td>
-                  <td>
-                    <span className={`badge bg-${badgeClass(project.status)}`}>
-                      {project.status || 'Unknown'}
-                    </span>
-                  </td>
-                  <td>{new Date(project.endDate).toLocaleDateString()}</td>
-                </tr>
-              ))}
+              {withDeadline.map((project, index) => {
+                const computedStatus = getComputedStatus(project);
+                return (
+                  <tr key={project._id}>
+                    <td>{index + 1}</td>
+                    <td>{project.name || 'Unnamed Project'}</td>
+                    <td>
+                      <span className={`badge bg-${badgeClass(computedStatus)}`}>
+                        {computedStatus}
+                      </span>
+                    </td>
+                    <td>{new Date(project.endDate).toLocaleDateString()}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
