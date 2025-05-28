@@ -24,6 +24,7 @@ const Deadlines = () => {
     fetchProjects();
   }, []);
 
+  // Helper for badge colors
   const badgeClass = (status) => {
     switch ((status || '').toLowerCase()) {
       case 'completed':
@@ -40,17 +41,19 @@ const Deadlines = () => {
     }
   };
 
-  const upcoming = projects
-    .filter((p) => p.endDate && new Date(p.endDate) > new Date())
+  // All projects with valid endDate, sorted by endDate (both future and past)
+  const withDeadline = projects
+    .filter((p) => p.endDate)
     .sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
 
   return (
     <div className="container mt-5">
-      <h3 className="mb-4">Upcoming Project Deadlines</h3>
+      <h3 className="mb-4">Project Deadlines</h3>
+
       {loading ? (
         <p>Loading...</p>
-      ) : upcoming.length === 0 ? (
-        <p>No upcoming deadlines found.</p>
+      ) : withDeadline.length === 0 ? (
+        <p>No projects with deadlines found.</p>
       ) : (
         <div className="table-responsive">
           <table className="table table-striped table-bordered align-middle">
@@ -63,7 +66,7 @@ const Deadlines = () => {
               </tr>
             </thead>
             <tbody>
-              {upcoming.map((project, index) => (
+              {withDeadline.map((project, index) => (
                 <tr key={project._id}>
                   <td>{index + 1}</td>
                   <td>{project.name || 'Unnamed Project'}</td>

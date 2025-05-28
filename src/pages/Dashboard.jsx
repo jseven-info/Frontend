@@ -43,6 +43,8 @@ const Dashboard = () => {
     fetchProjects();
   }, []);
 
+  const now = new Date();
+
   return (
     <div>
       <header className="bg-dark text-white p-3">
@@ -71,8 +73,14 @@ const Dashboard = () => {
                 <div className="card-body">
                   <h5 className="card-title text-primary">Project Summary</h5>
                   <p>Total Projects: <strong>{projects.length}</strong></p>
-                  <p>Ongoing: <strong>{projects.filter(p => p.status === 'In Progress').length}</strong></p>
-                  <p>Completed: <strong>{projects.filter(p => p.status === 'Completed').length}</strong></p>
+                  <p>Ongoing: <strong>{projects.filter(p => {
+                    const end = new Date(p.endDate);
+                    return p.status === 'In Progress' && end > now;
+                  }).length}</strong></p>
+                  <p>Completed: <strong>{projects.filter(p => {
+                    const end = new Date(p.endDate);
+                    return p.status === 'Completed' || (p.status === 'In Progress' && end <= now);
+                  }).length}</strong></p>
                   <a href="/create-project" className="btn btn-primary btn-sm mt-2">Manage Projects</a>
                 </div>
               </div>
@@ -118,42 +126,48 @@ const Dashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {projects.map((project, idx) => (
-                        <tr key={project._id}>
-                          <td>{idx + 1}</td>
-                          <td>{project.name}</td>
-                          <td>
-                            <span className={`badge bg-${project.status === 'Completed'
-                              ? 'success'
-                              : project.status === 'In Progress'
-                              ? 'warning text-dark'
-                              : 'secondary'}`}>
-                              {project.status}
-                            </span>
-                          </td>
-                          <td>{project.startDate || '—'}</td>
-                          <td>{project.endDate || '—'}</td>
-                          <td>
-                            <a
-                              href={`/edit-project/${project._id}`}
-                              className="btn btn-sm btn-outline-primary me-2"
-                            >
-                              Edit
-                            </a>
-                            <button
-                              onClick={() => deleteProject(project._id)}
-                              className="btn btn-sm btn-outline-danger"
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                      {projects.map((project, idx) => {
+                        const endDate = new Date(project.endDate);
+                        const isCompleted = project.status === 'Completed' || (project.status === 'In Progress' && endDate <= now);
+                        const displayStatus = isCompleted ? 'Completed' : project.status;
+                        const badgeClass = isCompleted
+                          ? 'success'
+                          : displayStatus === 'In Progress'
+                          ? 'warning text-dark'
+                          : 'secondary';
+
+                        return (
+                          <tr key={project._id}>
+                            <td>{idx + 1}</td>
+                            <td>{project.name}</td>
+                            <td>
+                              <span className={`badge bg-${badgeClass}`}>
+                                {displayStatus}
+                              </span>
+                            </td>
+                            <td>{project.startDate || '—'}</td>
+                            <td>{project.endDate || '—'}</td>
+                            <td>
+                              <a
+                                href={`/edit-project/${project._id}`}
+                                className="btn btn-sm btn-outline-primary me-2"
+                              >
+                                Edit
+                              </a>
+                              <button
+                                onClick={() => deleteProject(project._id)}
+                                className="btn btn-sm btn-outline-danger"
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
                       {projects.length === 0 && (
                         <tr>
                           <td colSpan="6" className="text-center">No projects found.</td>
                         </tr>
-                        
                       )}
                     </tbody>
                   </table>

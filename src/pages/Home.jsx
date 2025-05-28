@@ -144,10 +144,10 @@ const Home = () => {
         {project.name}
       </div>
       <div className="d-flex justify-content-between align-items-center" style={{ width: '65%' }}>
-       {isOnHold ? (
-  <span style={{ fontWeight: 'bold' }}>{project.status}</span>
+      {isOnHold ? (
+  <span style={{ fontWeight: 'bold', color: '#dc3545' }}>{project.status}</span> // Red for On Hold
 ) : project.status === 'Completed' || project.status === 'To Be Announced' ? (
-  <span className="text-primary" style={{ fontWeight: 'bold' }}>{project.status}</span>
+  <span className="text-primary" style={{ fontWeight: 'bold' }}>{project.status}</span> // Blue
 ) : cd ? (
   <>
     <DigitFlip value={cd.months} />
@@ -156,7 +156,10 @@ const Home = () => {
     <DigitFlip value={cd.minutes} />
     <DigitFlip value={cd.seconds} />
   </>
-) : null}
+) : (
+  <span className="text-primary" style={{ fontWeight: 'bold' }}>Completed</span> // Countdown is over = completed
+)}
+
 
       </div>
     </div>
