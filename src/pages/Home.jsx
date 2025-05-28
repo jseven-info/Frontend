@@ -60,7 +60,7 @@ const Home = () => {
   const [projects, setProjects] = useState([]);
   const [countdowns, setCountdowns] = useState({});
   const [currentPage, setCurrentPage] = useState(0);
-  const projectsPerPage = Math.floor(window.innerHeight / 90); // Responsive per screen height
+  const projectsPerPage = Math.floor(window.innerHeight / 90);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -124,38 +124,45 @@ const Home = () => {
       </div>
 
       <div className="px-3" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {displayedProjects.map((project) => {
-          const cd = countdowns[project._id];
-          return (
-            <div key={project._id} className="d-flex justify-content-between align-items-center" style={{
-              backgroundColor: cd ? '#ffffff' : '#ffe6e6',
-              color: cd ? '#001f3f' : '#990000',
-              borderRadius: '10px',
-              padding: '10px 15px',
-              fontSize: '2rem',
-              minHeight: '90px'
-            }}>
-              <div style={{ width: '30%', fontWeight: 'bold', color: cd ? '#0074D9' : '#990000' }}>{project.name}</div>
-              <div className="d-flex justify-content-between align-items-center" style={{ width: '65%' }}>
-                {project.status === 'Completed' ? (
-                  <span className="text-danger">Completed</span>
-                ) : project.status === 'On Hold' || project.status === 'To Be Announced' ? (
-                  <span style={{ color: 'rgb(0, 31, 63)', fontWeight: 'bold' }}>{project.status}</span>
-                ) : cd ? (
-                  <>
-                    <DigitFlip value={cd.months} />
-                    <DigitFlip value={cd.days} />
-                    <DigitFlip value={cd.hours} />
-                    <DigitFlip value={cd.minutes} />
-                    <DigitFlip value={cd.seconds} />
-                  </>
-                ) : (
-                  <span className="text-danger">Completed</span>
-                )}
-              </div>
-            </div>
-          );
-        })}
+       {displayedProjects.map((project) => {
+  const cd = countdowns[project._id];
+  const isOnHold = project.status === 'On Hold';
+
+  return (
+    <div key={project._id} className="d-flex justify-content-between align-items-center"
+      style={{
+        backgroundColor: isOnHold ? '#ffcccc' : '#e6f7ff',  // red for On Hold, blue otherwise
+        color: isOnHold ? '#990000' : '#003366',             // red text for On Hold
+        borderRadius: '10px',
+        padding: '10px 15px',
+        fontSize: '2rem',
+        minHeight: '90px',
+        border: isOnHold ? '2px solid #cc0000' : '2px solid #0074D9'
+      }}
+    >
+      <div style={{ width: '30%', fontWeight: 'bold', color: isOnHold ? '#cc0000' : '#0074D9' }}>
+        {project.name}
+      </div>
+      <div className="d-flex justify-content-between align-items-center" style={{ width: '65%' }}>
+       {isOnHold ? (
+  <span style={{ fontWeight: 'bold' }}>{project.status}</span>
+) : project.status === 'Completed' || project.status === 'To Be Announced' ? (
+  <span className="text-primary" style={{ fontWeight: 'bold' }}>{project.status}</span>
+) : cd ? (
+  <>
+    <DigitFlip value={cd.months} />
+    <DigitFlip value={cd.days} />
+    <DigitFlip value={cd.hours} />
+    <DigitFlip value={cd.minutes} />
+    <DigitFlip value={cd.seconds} />
+  </>
+) : null}
+
+      </div>
+    </div>
+  );
+})}
+
       </div>
 
       <style>{`
