@@ -168,50 +168,52 @@ const Home = () => {
 
       </div>
 
-      <style>{`
-        .flip {
-          position: relative;
-          width: 36px;
-          height: 48px;
-          perspective: 800px;
-          margin: 0 3px;
-        }
+   <style>{`
+  .flip {
+    position: relative;
+    width: 80px; /* increased width */
+    height: 100px; /* increased height */
+    perspective: 1000px;
+    margin: 0 6px; /* more spacing between digits */
+  }
 
-        .flip-inner {
-          position: relative;
-          width: 100%;
-          height: 100%;
-          transform-style: preserve-3d;
-        }
+  .flip-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+  }
 
-        .flip.flip-animate .flip-inner {
-          animation: flipDown 0.6s ease-in-out forwards;
-        }
+  .flip.flip-animate .flip-inner {
+    animation: flipDown 0.6s ease-in-out forwards;
+  }
 
-        @keyframes flipDown {
-          0% { transform: rotateX(0deg); }
-          50% { transform: rotateX(-90deg); }
-          100% { transform: rotateX(-180deg); }
-        }
+  @keyframes flipDown {
+    0% { transform: rotateX(0deg); }
+    50% { transform: rotateX(-90deg); }
+    100% { transform: rotateX(-180deg); }
+  }
 
-        .flip-front, .flip-back {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          line-height: 48px;
-          backface-visibility: hidden;
-          background-color: #007BFF;
-          color: white;
-          border-radius: 6px;
-          font-weight: bold;
-          font-size: 1.5rem;
-          text-align: center;
-          box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
+  .flip-front, .flip-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    line-height: 100px; /* match new height */
+    backface-visibility: hidden;
+    background-color: #007BFF;
+    color: white;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 2.5rem; /* increased font size */
+    text-align: center;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+  }
 
-        .flip-front { transform: rotateX(0deg); z-index: 2; }
-        .flip-back { transform: rotateX(180deg); }
-      `}</style>
+  .flip-front { transform: rotateX(0deg); z-index: 2; }
+  .flip-back { transform: rotateX(180deg); }
+`}</style>
+
+
     </div>
   );
 };
