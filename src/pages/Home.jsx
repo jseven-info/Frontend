@@ -113,7 +113,7 @@ const Home = () => {
       <h2 className="text-center text-info mb-5" style={{ fontSize: '2rem' }}>{today}</h2>
 
       <div className="d-flex justify-content-between align-items-center px-3" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#7FDBFF', borderBottom: '2px solid #7FDBFF', paddingBottom: '4px', marginBottom: '8px' }}>
-        <div style={{ width: '30%' }}>Project</div>
+        <div style={{ width: '30%' }}>Projects</div>
         <div className="d-flex justify-content-between" style={{ width: '65%' }}>
           <span style={{ marginLeft: '8px' }}>Months</span>
           <span>Days</span>
