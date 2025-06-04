@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+// Format as YYYY-MM-DDTHH:00 (no minutes/seconds)
 const formatDateTimeLocal = (date) => {
   const pad = (n) => String(n).padStart(2, '0');
   return (
@@ -13,19 +14,19 @@ const formatDateTimeLocal = (date) => {
     pad(date.getDate()) +
     'T' +
     pad(date.getHours()) +
-    ':' +
-    pad(date.getMinutes())
+    ':00'
   );
 };
 
 const CreateProject = () => {
   const now = new Date();
-  const inOneHour = new Date(now.getTime() + 60 * 60 * 1000);
+  const roundedNow = new Date(now.setMinutes(0, 0, 0));
+  const inOneHour = new Date(roundedNow.getTime() + 60 * 60 * 1000);
 
   const [formData, setFormData] = useState({
     name: '',
     status: 'To Be Announced',
-    startDate: formatDateTimeLocal(now),
+    startDate: formatDateTimeLocal(roundedNow),
     endDate: formatDateTimeLocal(inOneHour),
   });
 
@@ -42,24 +43,22 @@ const CreateProject = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const nowSeconds = new Date().getSeconds();
 
-      const withSeconds = (dt) => {
+      const cleanDate = (dt) => {
         const date = new Date(dt);
         if (isNaN(date.getTime())) return null;
-        date.setSeconds(nowSeconds);
+        date.setMinutes(0, 0, 0); // Ensure zeroed minutes/seconds
         return date.toISOString();
       };
 
-    const cleanedData = {
-  name: formData.name.trim(),
-  status: formData.status,
-  startDate: isStartTBA ? null : withSeconds(formData.startDate),
-  endDate: isEndTBA ? null : withSeconds(formData.endDate),
-};
+      const cleanedData = {
+        name: formData.name.trim(),
+        status: formData.status,
+        startDate: isStartTBA ? null : cleanDate(formData.startDate),
+        endDate: isEndTBA ? null : cleanDate(formData.endDate),
+      };
 
-          console.log("📤 Sending to API:", cleanedData); // Debug log
-
+      console.log("📤 Sending to API:", cleanedData);
 
       await axios.post('https://backend-9nfg.onrender.com/api/projects', cleanedData, {
         headers: {
@@ -118,6 +117,7 @@ const CreateProject = () => {
               className="form-control"
               id="startDate"
               name="startDate"
+              step="3600" // only allow hour selection
               value={formData.startDate}
               onChange={handleChange}
             />
@@ -149,6 +149,7 @@ const CreateProject = () => {
               className="form-control"
               id="endDate"
               name="endDate"
+              step="3600" // only allow hour selection
               value={formData.endDate}
               onChange={handleChange}
             />

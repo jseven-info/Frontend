@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+// Format as "YYYY-MM-DDTHH:00" (minutes & seconds forced to 00)
 const formatDateTimeLocal = (date) => {
   const pad = (n) => String(n).padStart(2, '0');
   return (
@@ -14,14 +15,14 @@ const formatDateTimeLocal = (date) => {
     pad(date.getDate()) +
     'T' +
     pad(date.getHours()) +
-    ':' +
-    pad(date.getMinutes())
+    ':00'
   );
 };
 
 const EditProject = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: '',
     status: 'To Be Announced',
@@ -37,18 +38,27 @@ const EditProject = () => {
     const fetchProject = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`https://backend-9nfg.onrender.com/api/projects/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await axios.get(
+          `https://backend-9nfg.onrender.com/api/projects/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
         const project = res.data;
         setFormData({
           name: project.name || '',
           status: project.status || 'To Be Announced',
-          startDate: project.startDate ? formatDateTimeLocal(new Date(project.startDate)) : '',
-          endDate: project.endDate ? formatDateTimeLocal(new Date(project.endDate)) : '',
+          startDate: project.startDate
+            ? formatDateTimeLocal(new Date(project.startDate))
+            : '',
+          endDate: project.endDate
+            ? formatDateTimeLocal(new Date(project.endDate))
+            : '',
         });
+
         setIsStartTBA(!project.startDate);
         setIsEndTBA(!project.endDate);
       } catch (err) {
@@ -57,6 +67,7 @@ const EditProject = () => {
         setLoading(false);
       }
     };
+
     fetchProject();
   }, [id]);
 
@@ -67,30 +78,35 @@ const EditProject = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const token = localStorage.getItem('token');
-      const nowSeconds = new Date().getSeconds();
 
-      const withSeconds = (dt) => {
+      // Zero out minutes & seconds before converting to ISO
+      const cleanDate = (dt) => {
         const date = new Date(dt);
         if (isNaN(date.getTime())) return null;
-        date.setSeconds(nowSeconds);
+        date.setMinutes(0, 0, 0);
         return date.toISOString();
       };
 
       const cleanedData = {
         name: formData.name.trim(),
         status: formData.status,
-        startDate: isStartTBA ? null : withSeconds(formData.startDate),
-        endDate: isEndTBA ? null : withSeconds(formData.endDate),
+        startDate: isStartTBA ? null : cleanDate(formData.startDate),
+        endDate: isEndTBA ? null : cleanDate(formData.endDate),
       };
 
-      await axios.put(`https://backend-9nfg.onrender.com/api/projects/${id}`, cleanedData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      await axios.put(
+        `https://backend-9nfg.onrender.com/api/projects/${id}`,
+        cleanedData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       alert('✅ Project updated successfully');
       navigate('/dashboard');
@@ -107,8 +123,11 @@ const EditProject = () => {
     <div className="container mt-5">
       <h2 className="mb-4">Edit Project</h2>
       <form onSubmit={handleSubmit}>
+        {/* Project Name */}
         <div className="mb-3">
-          <label htmlFor="name" className="form-label">Project Name</label>
+          <label htmlFor="name" className="form-label">
+            Project Name
+          </label>
           <input
             type="text"
             className="form-control"
@@ -120,8 +139,11 @@ const EditProject = () => {
           />
         </div>
 
+        {/* Status */}
         <div className="mb-3">
-          <label htmlFor="status" className="form-label">Status</label>
+          <label htmlFor="status" className="form-label">
+            Status
+          </label>
           <select
             className="form-select"
             id="status"
@@ -137,24 +159,23 @@ const EditProject = () => {
           </select>
         </div>
 
+        {/* Start Date & Time */}
         <div className="mb-3">
-          <label htmlFor="startDate" className="form-label">Start Date & Time</label>
+          <label htmlFor="startDate" className="form-label">
+            Start Date & Time
+          </label>
           {!isStartTBA ? (
             <input
               type="datetime-local"
               className="form-control"
               id="startDate"
               name="startDate"
+              step="3600"            // only allow picking full hours
               value={formData.startDate}
               onChange={handleChange}
             />
           ) : (
-            <input
-              type="text"
-              className="form-control"
-              value="TBA"
-              readOnly
-            />
+            <input type="text" className="form-control" value="TBA" readOnly />
           )}
           <div className="form-check mt-2">
             <input
@@ -164,28 +185,29 @@ const EditProject = () => {
               checked={isStartTBA}
               onChange={() => setIsStartTBA(!isStartTBA)}
             />
-            <label className="form-check-label" htmlFor="startTBA">TBA</label>
+            <label className="form-check-label" htmlFor="startTBA">
+              TBA
+            </label>
           </div>
         </div>
 
+        {/* End Date & Time */}
         <div className="mb-3">
-          <label htmlFor="endDate" className="form-label">End Date & Time</label>
+          <label htmlFor="endDate" className="form-label">
+            End Date & Time
+          </label>
           {!isEndTBA ? (
             <input
               type="datetime-local"
               className="form-control"
               id="endDate"
               name="endDate"
+              step="3600"            // only allow picking full hours
               value={formData.endDate}
               onChange={handleChange}
             />
           ) : (
-            <input
-              type="text"
-              className="form-control"
-              value="TBA"
-              readOnly
-            />
+            <input type="text" className="form-control" value="TBA" readOnly />
           )}
           <div className="form-check mt-2">
             <input
@@ -195,12 +217,21 @@ const EditProject = () => {
               checked={isEndTBA}
               onChange={() => setIsEndTBA(!isEndTBA)}
             />
-            <label className="form-check-label" htmlFor="endTBA">TBA</label>
+            <label className="form-check-label" htmlFor="endTBA">
+              TBA
+            </label>
           </div>
         </div>
 
-        <button type="submit" className="btn btn-primary">Update Project</button>
-        <button type="button" className="btn btn-secondary ms-2" onClick={() => navigate('/dashboard')}>
+        {/* Buttons */}
+        <button type="submit" className="btn btn-primary">
+          Update Project
+        </button>
+        <button
+          type="button"
+          className="btn btn-secondary ms-2"
+          onClick={() => navigate('/dashboard')}
+        >
           Cancel
         </button>
       </form>
